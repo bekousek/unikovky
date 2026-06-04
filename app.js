@@ -848,12 +848,71 @@ function escapeAttr(str) {
     return (str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;');
 }
 
+// ====== FLOATING PANEL & FEEDBACK ======
+function toggleFloatingPanel() {
+    document.getElementById('floating-menu').classList.toggle('open');
+}
+
+function openFeedbackModal() {
+    document.getElementById('floating-menu').classList.remove('open');
+    document.getElementById('feedback-modal').classList.add('active');
+    document.getElementById('feedback-name').value = '';
+    document.getElementById('feedback-message').value = '';
+    document.getElementById('feedback-status').textContent = '';
+    document.getElementById('feedback-status').className = 'feedback-status';
+    document.getElementById('feedback-message').focus();
+}
+
+function closeFeedbackModal() {
+    document.getElementById('feedback-modal').classList.remove('active');
+}
+
+async function submitFeedback() {
+    const name = document.getElementById('feedback-name').value.trim();
+    const message = document.getElementById('feedback-message').value.trim();
+    const statusEl = document.getElementById('feedback-status');
+
+    if (!message) {
+        statusEl.className = 'feedback-status error';
+        statusEl.textContent = 'Napište prosím zprávu.';
+        return;
+    }
+
+    try {
+        await db.collection('feedback').add({
+            name: name || 'Anonym',
+            message,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            userAgent: navigator.userAgent
+        });
+        statusEl.className = 'feedback-status success';
+        statusEl.textContent = 'Děkujeme za zpětnou vazbu!';
+        document.getElementById('feedback-message').value = '';
+        setTimeout(closeFeedbackModal, 1500);
+    } catch {
+        const subject = encodeURIComponent('Zpětná vazba – Únikovky');
+        const body = encodeURIComponent(`${name ? 'Od: ' + name + '\n\n' : ''}${message}`);
+        window.open(`mailto:ondrejbek8@gmail.com?subject=${subject}&body=${body}`);
+        statusEl.className = 'feedback-status success';
+        statusEl.textContent = 'Otevírám e-mail...';
+        setTimeout(closeFeedbackModal, 1500);
+    }
+}
+
+document.addEventListener('click', (e) => {
+    const panel = document.getElementById('floating-panel');
+    if (panel && !panel.contains(e.target)) {
+        document.getElementById('floating-menu').classList.remove('open');
+    }
+});
+
 // ====== KEYBOARD ======
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeTask();
         closeDoorLock();
         closeAiModal();
+        closeFeedbackModal();
     }
 });
 

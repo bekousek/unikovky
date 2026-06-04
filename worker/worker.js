@@ -92,8 +92,15 @@ export default {
         }
 
         try {
+            const models = [
+                'gemini-2.0-flash',
+                'gemini-2.0-flash-lite',
+                'gemini-1.5-flash',
+            ];
+            const model = env.GEMINI_MODEL || models[0];
+
             const geminiRes = await fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -110,8 +117,15 @@ export default {
 
             if (!geminiRes.ok) {
                 const errText = await geminiRes.text();
-                console.error('Gemini error:', errText);
-                return new Response(JSON.stringify({ error: 'AI služba není dostupná. Zkuste to znovu.' }), {
+                console.error('Gemini error:', geminiRes.status, errText);
+                let detail = '';
+                try {
+                    const errJson = JSON.parse(errText);
+                    detail = errJson.error?.message || '';
+                } catch {}
+                return new Response(JSON.stringify({
+                    error: `AI služba vrátila chybu (${geminiRes.status}). ${detail}`.trim()
+                }), {
                     status: 502,
                     headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
                 });

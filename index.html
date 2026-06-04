@@ -212,6 +212,41 @@
     </div>
 </div>
 
+<!-- ============ FLOATING PANEL ============ -->
+<div class="floating-panel" id="floating-panel">
+    <button class="floating-toggle" id="floating-toggle" onclick="toggleFloatingPanel()">💬</button>
+    <div class="floating-menu" id="floating-menu">
+        <a href="https://buymeacoffee.com/ondrejbek" target="_blank" rel="noopener" class="floating-item coffee-item">
+            ☕ Buy me a coffee
+        </a>
+        <button class="floating-item feedback-item" onclick="openFeedbackModal()">
+            💡 Návrhy ke zlepšení
+        </button>
+    </div>
+</div>
+
+<!-- ============ FEEDBACK MODAL ============ -->
+<div id="feedback-modal" class="modal">
+    <div class="modal-content feedback-modal-content">
+        <button class="modal-close" onclick="closeFeedbackModal()">&times;</button>
+        <h2>💡 Zpětná vazba</h2>
+        <p class="feedback-desc">Máte nápad na zlepšení? Našli jste chybu? Napište mi!</p>
+        <div class="field-group">
+            <label class="field-label">Vaše jméno (nepovinné)</label>
+            <input type="text" id="feedback-name" class="input-small" placeholder="Jan Novák">
+        </div>
+        <div class="field-group">
+            <label class="field-label">Zpráva</label>
+            <textarea id="feedback-message" class="input-small" placeholder="Co byste chtěli vylepšit nebo co vám nefunguje..." rows="4"></textarea>
+        </div>
+        <div id="feedback-status" class="feedback-status"></div>
+        <div class="ai-modal-actions">
+            <button class="btn-secondary" onclick="closeFeedbackModal()">Zrušit</button>
+            <button class="btn-primary" onclick="submitFeedback()">Odeslat</button>
+        </div>
+    </div>
+</div>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
