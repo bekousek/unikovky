@@ -4,5 +4,26 @@ service cloud.firestore {
     match /users/{userId}/rooms/{roomId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+
+    // Zpětná vazba: kdokoliv (i nepřihlášený) může vytvořit dokument,
+    // ale nikdo ho nesmí číst, upravovat ani mazat z klienta.
+    match /feedback/{docId} {
+      allow create: if isValidFeedback();
+      allow read, update, delete: if false;
+    }
+  }
+
+  // Validace tvaru a velikosti dokumentu zpětné vazby.
+  function isValidFeedback() {
+    let data = request.resource.data;
+    return data.keys().hasOnly(['name', 'message', 'createdAt', 'userAgent'])
+      && data.message is string
+      && data.message.size() > 0
+      && data.message.size() <= 5000
+      && data.name is string
+      && data.name.size() <= 200
+      && data.createdAt == request.time
+      && data.userAgent is string
+      && data.userAgent.size() <= 1000;
   }
 }
